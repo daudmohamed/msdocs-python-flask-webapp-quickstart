@@ -1,7 +1,25 @@
 from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, send_from_directory
-app = Flask(__name__)
+import pyodbc
 
+app = Flask(__name__)
+server = 'daud.database.windows.net'
+database = 'daud'
+username = 'adminuser'
+password = '{Admin123}'   
+driver= '{ODBC Driver 17 for SQL Server}'
+
+@app.route('/sql')
+def sql():  # put application's code here
+    string = ""
+    with pyodbc.connect('DRIVER='+driver+';SERVER=tcp:'+server+';PORT=1433;DATABASE='+database+';UID='+username+';PWD='+ password) as conn:
+        with conn.cursor() as cursor:
+            cursor.execute("SELECT * FROM products")
+            row = cursor.fetchone()
+            while row:
+                string += str(row[0]) + " " + str(row[1])
+                row = cursor.fetchone()
+    return string
 
 @app.route('/')
 def index():
